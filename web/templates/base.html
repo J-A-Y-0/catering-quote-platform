@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% set role = 'owner' if user and user.is_owner else ('customer' if user else 'guest') %}
+  <title>{% if role == 'owner' %}Owner · {% elif role == 'customer' %}Customer · {% endif %}{% block title %}{{ business.name }} · Catering quotes{% endblock %}</title>
+  <meta name="description" content="Request a catering quote from {{ business.name | trim('.') }}: describe your event, get an itemized draft, and confirm once the owner reviews it.">
+  <meta name="theme-color" content="{{ '#13233D' if user and user.is_owner else '#F2F4EE' }}">
+  <link rel="icon" href="/static/img/favicon.svg?v={{ static_version }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/static/css/app.css?v={{ static_version }}">
+</head>
+{% set path = request.url.path if request else '' %}
+<body class="role-{{ role }} {% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      {% if role == 'owner' %}
+      <a class="brand brand-product" href="/owner" aria-label="Quote Kitchen, quote inbox">
+        <img class="qk-logo" src="/static/img/quote-kitchen-logo-light.svg?v={{ static_version }}" alt="" width="146" height="30">
+        <img class="qk-mark" src="/static/img/quote-kitchen-mark-light.svg?v={{ static_version }}" alt="" width="28" height="36">
+      {% else %}
+      <a class="brand" href="/" aria-label="{{ business.name }} home">
+        <span class="brand-monogram" aria-hidden="true">{{ business.name[:1] | upper }}</span>
+        <span class="brand-name">{{ business.name }}</span>
+      {% endif %}
+        {% if role != 'guest' %}<span class="role-tag role-tag-{{ role }}">{{ 'Owner' if role == 'owner' else 'Customer' }}</span>{% endif %}
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        {% block nav %}
+        {% if user %}
+        {% if not user.is_owner and requests_open %}<a class="nav-keep nav-cta" href="/chat"{% if path == '/chat' %} aria-current="page"{% endif %}><span aria-hidden="true">+</span> New request</a>{% endif %}
+        {% set home = '/owner' if user.is_owner else '/quotes' %}
+        <a class="nav-keep nav-link" href="{{ home }}"{% if path == home %} aria-current="page"{% endif %}>{{ 'Quote inbox' if user.is_owner else 'My Quotes' }}</a>
+        {% if user.is_owner %}<a class="nav-keep nav-link" href="/owner/menu"{% if path == '/owner/menu' %} aria-current="page"{% endif %}>Menu</a>{% endif %}
+        <span class="nav-user" title="{{ user.email }}"><span class="nav-avatar" aria-hidden="true">{{ (user.email or '?')[0] | upper }}</span><span class="nav-email">{{ user.email }}</span></span>
+        <form method="post" action="/logout" class="nav-form"><button class="btn btn-small btn-ghost" type="submit">Sign out</button></form>
+        {% else %}
+        <a class="nav-link" href="/#how">How it works</a>
+        <a class="nav-link" href="/#menu">Menu</a>
+        <a class="btn btn-small btn-ghost" href="/login">Sign in</a>
+        {% endif %}
+        {% endblock %}
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {% if notice %}<div class="flash-band"><div class="wrap flash-wrap"><p class="flash flash-{{ notice[0] }}" role="status">{{ notice[1] }}</p></div></div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <div class="footer-brand">
+        <span class="brand-monogram brand-monogram-sm" aria-hidden="true">{{ business.name[:1] | upper }}</span>
+        <p><strong>{{ business.name }}</strong>{% if business.place %} · {{ business.place }}{% endif %}</p>
+      </div>
+      <p class="muted">Menu prices from the caterer’s published menu{% if business.captured_at %}, captured {{ business.captured_at }}{% endif %}. Quotes are drafts until the owner approves them.</p>
+      <p class="muted footer-note"><span class="powered-by">Powered by <img class="powered-logo" src="/static/img/quote-kitchen-logo.svg?v={{ static_version }}" alt="Quote Kitchen" width="102" height="21"></span><button type="button" class="fx-toggle" data-fx-toggle hidden aria-pressed="true">Pointer effects: on</button></p>
+    </div>
+  </footer>
+  <script src="/static/js/ui.js?v={{ static_version }}" defer></script>
+  <script src="/static/js/fx.js?v={{ static_version }}" defer></script>
+</body>
+</html>

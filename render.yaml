@@ -1,0 +1,49 @@
+# Render blueprint for the web app. Secrets are marked sync: false so Render
+# asks for them in the dashboard; their values never live in this repository.
+services:
+  - type: web
+    name: quote-kitchen
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn web.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips "*"
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: APP_ENV
+        value: production
+      - key: APP_DATASET
+        value: demo
+      - key: QUOTE_DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Chat model: the deployed app uses LLM_PROVIDER=openai with OPENAI_MODEL=gpt-5.5.
+      - key: LLM_PROVIDER
+        sync: false
+      - key: ANTHROPIC_MODEL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        sync: false
+      - key: OPENAI_REASONING_EFFORT
+        sync: false
+      # Owner subscription checkout (Stripe TEST mode only: sk_test_ keys; live keys are refused).
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      # Supabase Auth user ID(s) of the business owner, comma-separated. Set after the
+      # owner account signs up; until then everyone who signs in is a customer.
+      - key: OWNER_USER_IDS
+        sync: false

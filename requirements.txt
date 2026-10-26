@@ -1,0 +1,10 @@
+# Everything the deployed web app needs (Render runs: pip install -r requirements.txt).
+-r requirements-ai.txt
+openai==3.35.1  # optional chat provider (LLM_PROVIDER=openai) for testing
+-r requirements-postgres.txt
+fastapi==0.150.0
+uvicorn[standard]==0.54.0
+jinja2==3.1.6
+python-multipart==0.0.32
+httpx==0.28.1
+stripe==14.4.1  # billing uses dict-style .get() on Stripe objects, removed in stripe 15+

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% set signup = mode == 'signup' %}
+{% block title %}{{ 'Create an account' if signup else 'Sign in' }} · {{ business.name }}{% endblock %}
+{% block body_class %}page-auth{% endblock %}
+{% block nav %}<a class="nav-link nav-keep" href="/"><span aria-hidden="true">←</span> Back to home</a>{% endblock %}
+{% block content %}
+<section class="auth">
+  <div class="auth-shell">
+  <div class="auth-card">
+    <nav class="auth-tabs" aria-label="Account">
+      <a href="/login{% if next %}?next={{ next | urlencode }}{% endif %}" {% if not signup %}aria-current="page" class="is-active"{% endif %}>Sign in</a>
+      <a href="/login?mode=signup{% if next %}&next={{ next | urlencode }}{% endif %}" {% if signup %}aria-current="page" class="is-active"{% endif %}>Create account</a>
+    </nav>
+    <h1 class="display-sm">{{ 'Create your account' if signup else 'Welcome back' }}</h1>
+    <p class="muted">{% if signup %}Create a customer account with your email. Your quote requests will be saved to it.{% else %}Customers go to My Quotes. Owners go to the quote inbox.{% endif %}</p>
+
+    {% if not accounts_open %}
+    <div class="notice">
+      <strong>Sign-in isn’t available right now.</strong>
+      Accounts are being set up. Try again soon.
+    </div>
+    {% endif %}
+    {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
+    <form class="form" method="post" action="{{ '/signup' if signup else '/login' }}" novalidate>
+      <input type="hidden" name="next" value="{{ next }}">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" value="{{ email }}" autocomplete="email" required {% if not accounts_open %}disabled{% endif %} {% if error %}aria-invalid="true"{% endif %}>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" minlength="8" required
+             autocomplete="{{ 'new-password' if signup else 'current-password' }}"
+             {% if signup %}aria-describedby="password-help"{% endif %} {% if not accounts_open %}disabled{% endif %}>
+      {% if signup %}<p id="password-help" class="fine-print">At least 8 characters.</p>{% endif %}
+      <button class="btn btn-primary btn-block" type="submit" {% if not accounts_open %}disabled{% endif %}>{{ 'Create account' if signup else 'Sign in' }}</button>
+    </form>
+    <p class="fine-print">
+      {% if signup %}Already have an account? <a href="/login{% if next %}?next={{ next | urlencode }}{% endif %}">Sign in</a>.
+      {% else %}New here? <a href="/login?mode=signup{% if next %}&next={{ next | urlencode }}{% endif %}">Create a customer account</a>.{% endif %}
+    </p>
+  </div>
+  <aside class="auth-aside" aria-hidden="true">
+    <div class="ticket-wrap" data-tilt>
+      <div class="ticket">
+        <div class="ticket-head">
+          <p class="ticket-brand">{{ business.name | trim('.') }}</p>
+          <p class="ticket-meta"><span>Your account</span><span>{{ 'New' if signup else 'Saved' }}</span></p>
+        </div>
+        <table class="ticket-lines">
+          <tbody>
+            <tr><td>Chat with the assistant</td><td class="num">✓</td></tr>
+            <tr><td>Itemized draft from the menu</td><td class="num">✓</td></tr>
+            <tr><td>Owner review</td><td class="num">✓</td></tr>
+            <tr><td>You accept or decline</td><td class="num">✓</td></tr>
+          </tbody>
+        </table>
+        <div class="ticket-foot">
+          <div class="ticket-foot-text"><p>Every quote, in one place</p><span class="barcode"></span></div>
+          <p class="stamp stamp-ready">Free</p>
+        </div>
+      </div>
+    </div>
+    <p class="auth-aside-note">No payment details. Nothing is booked until you accept.</p>
+  </aside>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: Install
+        run: pip install -r requirements-dev.txt
+      - name: Validate datasets
+        run: |
+          python data/validate_dataset.py
+          python data/demo/validate_demo.py
+          python data/sample/validate_sample.py
+      - name: Unit and web tests
+        run: python -m pytest -q

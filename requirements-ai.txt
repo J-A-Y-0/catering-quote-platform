@@ -1,0 +1,2 @@
+# AI conversation service: Anthropic provider (OpenAI is in requirements.txt).
+anthropic
