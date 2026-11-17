@@ -186,3 +186,7 @@ docs/           Architecture, deployment, product requirements
 ## Background
 
 Quote Kitchen started as a team project. This repository is my maintained version.
+
+---
+
+By [Jay Yu](https://jayyu.me/) · [Case study](https://jayyu.me/work/quote-kitchen/)
